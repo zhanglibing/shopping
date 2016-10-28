@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en" ng-app="shoping">
+<head>
+    <meta charset="UTF-8">
+    <title>购物车</title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/angular.js/1.5.8/angular.js"></script>
+</head>
+<body ng-controller="mainCtrl">
+<div class="header">
+    <div class="container">
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown" ng-init="flag=false">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" ng-click="flag=!flag">购物车 <span class="badge">{{number()}}</span></span></a>
+                            <ul class="dropdown-menu" role="menu" ng-class="{show:flag}" >
+                                <table class="table tab">
+                                      <tr ng-show="gou.length!=0">
+                                          <th class="height"></th>
+                                          <th class="height">名称</th>
+                                          <th class="height">单价</th>
+                                          <th class="height">数量</th>
+                                          <th class="height">总价</th>
+                                          <th class="height"><button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" ng-click="deletekong($index)">清空</th>
+                                      </tr>
+                                     <tr ng-repeat="v in gou">
+                                         <td class="col-lg-2"><img ng-src="{{v.image}}" alt="" class="imgg"></td>
+                                         <td class="col-lg-2 height">{{v.name}}</td>
+                                         <td class="col-lg-2 height">{{v.price}}</td>
+                                         <td class="col-lg-2 height" style="position:relative">{{v.num}} <span class="add" ng-click="v.num=v.num+1">+</span><span class="jian" ng-click="jian(v.id)">-</span></td>
+                                         <td class="col-lg-2 height">{{v.price*v.num}}</td>
+                                         <td class="col-lg-2 height"><button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" ng-click="delete(v.id)">删除</td>
+                                     </tr>
+                                </table>
+                                <li ng-show="gou.length==0">亲！购物车为空，赶快添加</li>
+                                <li ng-show="gou.length!=0"><a href="#">购物总价: <span class="totle">{{totle()}}人民币</span>,总数量为<span class="totle"><span>{{number()}}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3 main" ng-repeat="v in shop track by $index">
+            <div class="thumbnail main">
+                <img ng-src="{{v.image}}" alt="...">
+                <div class="caption">
+                    <h3>{{v.name}}</h3>
+                    <p class="price"><span>¥</span>{{v.price}}</p>
+                    <p class="anniu" ><a href="javascript:;" class="btn btn-success" role="button" ng-click="add(v.id)">加入购物车</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="alert alert-success tishi" role="alert" ng-show="!isEven(1)" ng-click="isEven(2)">收藏成功!</div>
+<div class="container">
+    <focus-input ng-repeat="v in shoping">
+
+    </focus-input>
+</div>
+</body>
+<script>
+    var app=angular.module('shoping',[]);
+    app.directive('focusInput',[function(){
+        return {
+            //指定指令在页面中的使用方式 E = Element, A = Attribute
+            restrict:'AE',
+            //template属性指定指令展开后的DOM形式
+            // 注意：只能有一个div包起来，不能平行
+            template: '<div class="box"><input type="text"></div>',
+            // 这两个只能用一个后面的会覆盖上面的
+
+            // 使用了一个ajax请求
+            templateUrl:'dropDown.html',
+        //为true时会让页面中只保留template，去掉指令本身
+             replace: true,
+                //link： 函数会在指令展开成DOM形式之后运行
+                // angluar 会给他传入scope和template中的最外层的div
+                // 在link函数中注册事件，操作DOM
+                link:function(scope,el){
+            $(el).find('input').on('blur focus',function(){
+                $(this).closest(".box").toggleClass('active');
+            })
+        }
+    }
+    }])
+    app.controller('mainCtrl',['$scope',function($scope){
+        $scope.shop=[{id:1,image:"images/xiaomi.jpg",name:'小米',price:2200},
+            {id:2,image:"images/sanxin.jpg",name:'三星',price:5200},
+            {id:3,image:"images/apple.jpg",name:'苹果',price:4200},
+            {id:4,image:"images/leshi.jpg",name:'乐视',price:4200},
+            {id:5,image:"images/huawei.jpg",name:'华为',price:4200},
+            {id:6,image:"images/vivo.jpg",name:'vivo',price:2200},
+            {id:7,image:"images/sanxin.jpg",name:'三星',price:5200},
+            {id:8,image:"images/meizu.jpg",name:'魅族',price:1500}];
+        $scope.gou=[];
+
+        $scope.add=function(id){
+            var tem=$scope.gou.find(function(v){
+                return v.id===id
+            })
+            if(tem){
+               tem.num+=1
+            }else{
+                $scope.shop.forEach(function(v,i){
+                    if(v.id==id){
+                      v.num=1;
+                     $scope.gou.push(v)
+                    }
+                })
+            }
+        };
+        $scope.totle=function() {
+            var t = 0;
+            angular.forEach($scope.gou,function(v){
+                t += v.price * v.num;
+            });
+            return t;
+        };
+        $scope.number=function() {
+            var n = 0;
+            angular.forEach($scope.gou,function(v){
+                n +=v.num;
+            });
+            return n;
+        }
+        $scope.jian=function(id){
+            var tem=$scope.gou.find(function(v){
+                return v.id===id
+            })
+            if(tem.num>0){
+                tem.num=tem.num-1;
+            }
+        }
+        $scope.delete=function(id){
+            $scope.gou.filter(function(v){
+                return v.id!=id;
+            })
+        };
+
+
+    }])
+</script>
+</html>
